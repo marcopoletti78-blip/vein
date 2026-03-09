@@ -441,11 +441,22 @@
       display: flex;
       gap: 14px;
       max-width: 680px;
-      animation: msgIn 0.25s ease;
+      animation: msgIn 0.3s ease;
     }
 
     @keyframes msgIn {
-      from { opacity: 0; transform: translateY(8px); }
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Vein messages get a slower, more deliberate entrance */
+    .msg.vein {
+      animation: veinMsgIn 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    @keyframes veinMsgIn {
+      from { opacity: 0; transform: translateY(10px); }
+      20% { opacity: 0; }
       to { opacity: 1; transform: translateY(0); }
     }
 
@@ -528,6 +539,22 @@
     }
 
     /* Typing */
+    /* ======================== TYPING TEXT ======================== */
+    .typing-text {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-size: 15px;
+      color: var(--muted);
+      letter-spacing: 0.04em;
+      animation: typingFade 1.8s ease-in-out infinite;
+    }
+
+    @keyframes typingFade {
+      0%, 100% { opacity: 0.4; }
+      50% { opacity: 1; }
+    }
+
+    /* Keep dots for insight modal */
     .typing-dots {
       display: flex;
       gap: 5px;
@@ -1180,8 +1207,8 @@
     <div class="chat-area" id="chatArea">
       <div class="welcome" id="welcomeState">
         <div class="welcome-symbol">V</div>
-        <h2 class="welcome-title">Cosa hai in mente?</h2>
-        <p class="welcome-sub">Condividi un'idea, una decisione, qualcosa che hai letto. Vein inizierà a farti domande per aiutarti a pensarci davvero.</p>
+        <h2 class="welcome-title" id="welcomeTitle">Cosa hai in mente?</h2>
+        <p class="welcome-sub" id="welcomeSub">Condividi un'idea, una decisione, qualcosa che hai letto. Vein inizierà a farti domande per aiutarti a pensarci davvero.</p>
         <div class="starters">
           <button class="starter-btn" onclick="useStarter(this)">
             <div class="starter-tag">Idea</div>
@@ -1274,6 +1301,52 @@
   let API_KEY = localStorage.getItem('vein-api-key') || '';
 
   if (!API_KEY) showKeyOverlay();
+
+  // ======================== WELCOME DINAMICA ========================
+  function initWelcome() {
+    const ora = new Date().getHours();
+    const streak = JSON.parse(localStorage.getItem('vein-streak') || '{"count":0,"lastDate":null}');
+    const sessions = JSON.parse(localStorage.getItem('vein-lifetime') || '{"totalSessions":0}');
+    const isFirstEver = sessions.totalSessions === 0;
+
+    // Saluto basato sull'ora
+    const saluto = ora < 12 ? 'Buongiorno.' : ora < 18 ? 'Buon pomeriggio.' : 'Buonasera.';
+
+    // Titolo e sottotitolo cambiano in base al contesto
+    let titolo, sub;
+
+    if (isFirstEver) {
+      titolo = 'Benvenuto.';
+      sub = 'Vein non ti darà risposte. Ti farà domande — quelle che nessuno ti fa. Inizia con qualcosa che hai in mente.';
+    } else if (streak.count >= 7) {
+      titolo = `${saluto} ${streak.count} giorni.`;
+      sub = 'Stai costruendo qualcosa di raro — la capacità di pensare ogni giorno. Cosa porti oggi?';
+    } else if (streak.count >= 3) {
+      titolo = saluto;
+      sub = `${streak.count} giorni consecutivi. Il rituale sta prendendo forma. Di cosa hai bisogno oggi?`;
+    } else {
+      // Domanda rotante basata sul giorno della settimana
+      const domande = [
+        'Cosa stai evitando di decidere?',
+        'Cosa hai in mente?',
+        'Cosa non riesci a toglierti dalla testa?',
+        'Su cosa vale la pena pensare oggi?',
+        'Cosa ti tiene sveglio?',
+        'Quale idea vuoi mettere alla prova?',
+        'Cosa non hai ancora detto ad alta voce?',
+      ];
+      const idx = new Date().getDay();
+      titolo = domande[idx];
+      sub = 'Condividi un pensiero, una decisione, qualcosa che non hai ancora capito del tutto.';
+    }
+
+    const titleEl = document.getElementById('welcomeTitle');
+    const subEl = document.getElementById('welcomeSub');
+    if (titleEl) titleEl.textContent = titolo;
+    if (subEl) subEl.textContent = sub;
+  }
+
+  initWelcome();
 
   // ======================== STREAK ========================
   function getStreak() {
@@ -1805,14 +1878,13 @@ Inizia sempre rispondendo direttamente con una domanda, senza presentarti.`;
     const el = document.createElement('div');
     el.className = 'msg vein';
     el.id = 'typingIndicator';
+    el.style.animation = 'none'; // no entrance animation for typing
     el.innerHTML = `
       <div class="msg-avatar">V</div>
       <div class="msg-body">
         <div class="msg-name">Vein</div>
-        <div class="typing-dots">
-          <div class="typing-dot"></div>
-          <div class="typing-dot"></div>
-          <div class="typing-dot"></div>
+        <div class="msg-bubble" style="padding: 12px 18px;">
+          <span class="typing-text">sta riflettendo…</span>
         </div>
       </div>
     `;
