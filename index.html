@@ -12,13 +12,13 @@
       --bg: #0e0e12;
       --surface: #13131a;
       --surface2: #1a1a24;
-      --border: rgba(255,255,255,0.06);
+      --border: rgba(255,255,255,0.09);
       --accent: #8b3a3a;
-      --accent-dim: rgba(139,58,58,0.15);
+      --accent-dim: rgba(139,58,58,0.18);
       --accent-glow: rgba(139,58,58,0.08);
       --text: #f0ede8;
-      --muted: rgba(240,237,232,0.38);
-      --muted2: rgba(240,237,232,0.18);
+      --muted: rgba(240,237,232,0.62);
+      --muted2: rgba(240,237,232,0.35);
       --vein-msg: #16141c;
       --devil: #8b3a3a;
     }
@@ -120,7 +120,7 @@
       border-radius: 3px;
       border: none;
       background: transparent;
-      color: var(--muted);
+      color: rgba(240,237,232,0.65);
       font-family: 'DM Mono', monospace;
       font-size: 11px;
       font-weight: 300;
@@ -132,7 +132,7 @@
     }
 
     .mode-btn:hover:not(.active) {
-      background: rgba(255,255,255,0.03);
+      background: rgba(255,255,255,0.05);
       color: var(--text);
     }
 
@@ -157,18 +157,22 @@
     }
 
     .mode-btn.devil {
-      color: rgba(139,58,58,0.5);
+      color: rgba(200,100,100,0.75);
+      border: 1px solid rgba(139,58,58,0.2);
+      border-radius: 3px;
     }
 
     .mode-btn.devil:hover:not(.active) {
-      background: rgba(139,58,58,0.06);
-      color: var(--accent);
+      background: rgba(139,58,58,0.1);
+      color: #c87070;
+      border-color: rgba(139,58,58,0.35);
     }
 
     .mode-btn.devil.active {
-      background: rgba(139,58,58,0.12);
+      background: rgba(139,58,58,0.18);
       border-left: 2px solid var(--accent);
-      color: var(--accent);
+      border-color: rgba(139,58,58,0.35);
+      color: #d08080;
       padding-left: 10px;
     }
 
